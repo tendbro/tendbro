@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TendBro</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      color: #000;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background-color: #111;
+      color: #fff;
+    }
+    .container {
+      max-width: 520px;
+      width: 100%;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border: 1px solid #ccc;
+      transition: background 0.3s;
+    }
+    .dark-mode .container {
+      background-color: #222;
+    }
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 6px;
+      color: inherit;
+    }
+    .tagline {
+      font-size: 12px;
+      text-align: center;
+      color: inherit;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      background-color: #fff;
+      color: #000;
+    }
+    .dark-mode input {
+      background-color: #222;
+      border-color: #888;
+      color: #fff;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .dark-mode button {
+      background-color: #fff;
+      color: #000;
+    }
+    .toggle {
+      margin-bottom: 20px;
+      text-align: right;
+      width: 100%;
+      font-size: 14px;
+    }
+    .result {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .green { background-color: #d4edda; color: #155724; }
+    .yellow { background-color: #fff3cd; color: #856404; }
+    .red { background-color: #f8d7da; color: #721c24; }
+    .reference {
+      margin-top: 20px;
+      font-size: 14px;
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .reference ul {
+      padding-left: 18px;
+    }
+    .gradeInfo {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+    .roast {
+      margin-top: 12px;
+      font-style: italic;
+    }
+  </style>
+
+<style>
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 999;
+  }
+  .toast.show {
+    opacity: 1;
+  }
+</style>
+<div class="toast" id="toast">Link copied to clipboard, bro!</div>
+</head>
+<body>
+  <div class="container">
+    <div class="toggle" style="display:none">
+      🌗 <label><input type="checkbox" onclick="document.body.classList.toggle('dark-mode')"> Toggle Dark Mode</label>
+    </div>
+    <h1>TendBro</h1>
+    <div class="tagline">your college attendance cally</div>
+
+    <label for="total">Total Sessions</label>
+    <input type="number" id="total" value="24" />
+
+    <label for="absents">Number of Absents</label>
+    <input type="number" id="absents" value="0" />
+
+    <label for="exemptions">Number of Exemptions</label>
+    <input type="number" id="exemptions" value="0" />
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="result" id="result"></div>
+
+    <div class="reference">
+      <strong>Points Reference:</strong>
+      <ul>
+        <li>80% - 100% → 10 points</li>
+        <li>75% - 79% → 8 points</li>
+        <li>70% - 74% → 6 points</li>
+        <li>65% - 69% → 4 points</li>
+        <li>60% - 64% → 2 points</li>
+        <li>Below 60% → 0 points</li>
+      </ul>
+    </div>
+
+    <button onclick="share()">👊 Share with Bros</button>
+  </div>
+
+  <script>
+    const roastComments = {
+      10: ["Roz college jaane wale ladke 💃", "Mad respect for the grind but bro… chill 🫠", "Pitaji ke 40 lakh ki full vasooli 😤", "Bhupesh would be proud, bro 🧘", "Chill bro, we get it. You love Mu 📚", "Bro attends like he's getting paid for it 💸", "You’re the TA’s emotional support student 🧑‍🏫", "10/10 gang but emotionally 2/10 from burnout 🫠", "This is beyond discipline, it’s a lifestyle choice 🧎‍♂️", "Ever considered touching grass, bro? 🌱", "You're the reason they take attendance now 📝"],
+      8: ["Trying to be that guy soo hard 🤡", "Bhai 8/10 se impress kaun hota hai fr 🥴", "Mid attendance, mid energy, mid life 💀", "Tera attendance bhi LinkedIn wali vibe deta hai 😌", "Elite tier… for now 👑", "Keep it tight, one slip and it’s over 🤐", "Bro acting elite but still calculating buffer daily 📟", "Your attendance isn't bad... it's basic ⚪️"],
+      6: ["Mid-core energy. Safe enough to lie to your parents 👨‍👩‍👦", "Neither studious nor fun. Peak confusion 🤷‍♂️", "Fake ambitious vibes. We see through you, bro 👁️", "TA sees you and thinks 'meh' 😐", "6/10... like everything else you do. Mid af 💩", "Trying to play both sides like you’re in consulting 🧑‍💼", "Bro, this isn’t the attendance percentile to flex 😬", "You’re not failing, but no one's impressed either 📉"],
+      4: ["Design class trauma is showing 🖌️", "This is the 'still technically in college' zone 😶", "Panic nahi kar rahe, lekin karna chahiye 🫣", "At this point, just show up with flowers for the TA 🌹", "Bro’s a regular in the warning mail list 📩", "You’re not passing, you're surviving 😤", "40 lakh fee and you attend like it's free trial 💸", "This is the “I'm on thin ice but it’s April” phase 🧊", "This is the ‘still technically enrolled’ phase 📉"],
+      2: ["TA knows your name. Not in a good way ☠️", "Design? PM? Bro just said 'nah' 😵", "You're still here? I thought you dropped out 😭", "Bro… you're doomed 💀", "Mad respect for not pretending anymore 🫡", "Bro chose vibes over ~~degree~~ certificate 💀", "You've reached a level where even bro can't help you 🙃", "Have you even seen the classroom lights? 💡", "Bro's concept of 'education' is philosophical 🧘"],
+      0: ["Legendary absentee. Tales will be told 📖", "Zero attendance, full confidence 💅", "Pitaji ke 40 lakh barbaad bc 🫠", "TA just skips your name now 😬", "Design? Attendance? What’s that bro 🤷", "Respect for not even pretending anymore 👑", "You missed every class and still showed up here 😭", "Just drop the course, bro 💀", "Bro thinks he is the whole curriculum 🙏🏽", "10/10 bunk, 0/10 regrets 🤙"]
+    };
+
+    function calculate() {
+      const total = parseInt(document.getElementById('total').value) || 0;
+      const absents = parseInt(document.getElementById('absents').value) || 0;
+      const exemptions = parseInt(document.getElementById('exemptions').value) || 0;
+
+      const effectiveTotal = total - exemptions;
+      const attended = Math.max(effectiveTotal - absents, 0);
+      const attendancePercent = effectiveTotal > 0 ? (attended / effectiveTotal) * 100 : 0;
+
+      let points = 0;
+      let bgClass = 'red';
+      let limit = 60;
+      if (attendancePercent >= 80) {
+        points = 10;
+        bgClass = 'green';
+        limit = 80;
+      } else if (attendancePercent >= 75) {
+        points = 8;
+        bgClass = 'yellow';
+        limit = 75;
+      } else if (attendancePercent >= 70) {
+        points = 6;
+        bgClass = 'yellow';
+        limit = 70;
+      } else if (attendancePercent >= 65) {
+        points = 4;
+        bgClass = 'red';
+        limit = 65;
+      } else if (attendancePercent >= 60) {
+        points = 2;
+        bgClass = 'red';
+        limit = 60;
+      }
+
+      const maxAllowedAbsents = Math.floor(effectiveTotal * (1 - limit / 100));
+      const canStillMiss = Math.max(0, maxAllowedAbsents - absents);
+
+      const roast = roastComments[points] ? roastComments[points][Math.floor(Math.random() * roastComments[points].length)] : "";
+
+      document.getElementById('result').className = `result ${bgClass}`;
+      let bufferMessage = "";
+      if (canStillMiss > 1) {
+        bufferMessage = `You’ve got ${canStillMiss} more bunks in the bank — grade stays at ${points}/10.`;
+      } else if (canStillMiss === 1) {
+        bufferMessage = `You’ve got room for 1 more bunk — grade stays at ${points}/10.`;
+      } else {
+        bufferMessage = `No more bunks left — one more and you’ll drop below ${points}/10.`;
+      }
+
+      let bufferMessage = "";
+      if (canStillMiss > 1) {
+        bufferMessage = `You’ve got ${canStillMiss} more bunks in the bank — grade stays at ${points}/10.`;
+      } else if (canStillMiss === 1) {
+        bufferMessage = `You’ve got room for 1 more bunk — grade stays at ${points}/10.`;
+      } else {
+        bufferMessage = `No more bunks left — one more and you’ll drop below ${points}/10.`;
+      }
+
+      
+      let bufferMessage = "";
+      if (canStillMiss > 1) {
+        bufferMessage = `You’ve got ${canStillMiss} more bunks in the bank — grade stays at ${points}/10.`;
+      } else if (canStillMiss === 1) {
+        bufferMessage = `You’ve got room for 1 more bunk — grade stays at ${points}/10.`;
+      } else {
+        bufferMessage = `No more bunks left — one more and you’ll drop below ${points}/10.`;
+      }
+
+      document.getElementById('result').className = `result ${bgClass}`;
+      document.getElementById('result').innerHTML = `
+        <p><strong>Attended:</strong> ${attended} / ${effectiveTotal}</p>
+        <p><strong>Attendance %:</strong> ${attendancePercent.toFixed(1)}%</p>
+        <p><strong>Points:</strong> ${points} / 10</p>
+        <p class="gradeInfo">${bufferMessage}</p>
+        <p class="roast">${roast}</p>
+      `;
+
+        <p><strong>Attended:</strong> ${attended} / ${effectiveTotal}</p>
+        <p><strong>Attendance %:</strong> ${attendancePercent.toFixed(1)}%</p>
+        <p><strong>Points:</strong> ${points} / 10</p>
+        <p class="gradeInfo">You’re currently on track for <strong>${points}/10</strong>.</p>
+        <p class="gradeInfo">You can miss <strong>${canStillMiss}</strong> more class(es) and still stay in this zone.</p>
+        <p class="roast">${roast}</p>
+      `;
+    }
+  </script>
+
+<script>
+  const roastComments = {
+    10: ["Roz college jaane wale ladke 💃", "Mad respect for the grind but bro… chill 🫠", "Pitaji ke 40 lakh ki full vasooli 😤", "Bhupesh would be proud, bro 🧘", "Chill bro, we get it. You love Mu 📚", "Bro attends like he's getting paid for it 💸", "You’re the TA’s emotional support student 🧑‍🏫", "10/10 gang but emotionally 2/10 from burnout 🫠", "This is beyond discipline, it’s a lifestyle choice 🧎‍♂️", "Ever considered touching grass, bro? 🌱", "You're the reason they take attendance now 📝"],
+    8: ["Trying to be that guy soo hard 🤡", "Bhai 8/10 se impress kaun hota hai fr 🥴", "Mid attendance, mid energy, mid life 💀", "Tera attendance bhi LinkedIn wali vibe deta hai 😌", "Elite tier… for now 👑", "Keep it tight, one slip and it’s over 🤐", "Bro acting elite but still calculating buffer daily 📟", "Your attendance isn't bad... it's basic ⚪️"],
+    6: ["Mid-core energy. Safe enough to lie to your parents 👨‍👩‍👦", "Neither studious nor fun. Peak confusion 🤷‍♂️", "Fake ambitious vibes. We see through you, bro 👁️", "TA sees you and thinks 'meh' 😐", "6/10... like everything else you do. Mid af 💩", "Trying to play both sides like you’re in consulting 🧑‍💼", "Bro, this isn’t the attendance percentile to flex 😬", "You’re not failing, but no one's impressed either 📉"],
+    4: ["Design class trauma is showing 🖌️", "This is the 'still technically in college' zone 😶", "Panic nahi kar rahe, lekin karna chahiye 🫣", "At this point, just show up with flowers for the TA 🌹", "Bro’s a regular in the warning mail list 📩", "You’re not passing, you're surviving 😤", "40 lakh fee and you attend like it's free trial 💸", "This is the “I'm on thin ice but it’s April” phase 🧊", "This is the ‘still technically enrolled’ phase 📉"],
+    2: ["TA knows your name. Not in a good way ☠️", "Design? PM? Bro just said 'nah' 😵", "You're still here? I thought you dropped out 😭", "Bro… you're doomed 💀", "Mad respect for not pretending anymore 🫡", "Bro chose vibes over ~~degree~~ certificate 💀", "You've reached a level where even bro can't help you 🙃", "Have you even seen the classroom lights? 💡", "Bro's concept of 'education' is philosophical 🧘"],
+    0: ["Legendary absentee. Tales will be told 📖", "Zero attendance, full confidence 💅", "Pitaji ke 40 lakh barbaad bc 🫠", "TA just skips your name now 😬", "Design? Attendance? What’s that bro 🤷", "Respect for not even pretending anymore 👑", "You missed every class and still showed up here 😭", "Just drop the course, bro 💀", "Bro thinks he is the whole curriculum 🙏🏽", "10/10 bunk, 0/10 regrets 🤙"]
+  };
+
+  function calculate() {
+    const total = parseInt(document.getElementById('total').value) || 0;
+    const absents = parseInt(document.getElementById('absents').value) || 0;
+    const exemptions = parseInt(document.getElementById('exemptions').value) || 0;
+
+    const effectiveTotal = total - exemptions;
+    const attended = Math.max(effectiveTotal - absents, 0);
+    const attendancePercent = effectiveTotal > 0 ? (attended / effectiveTotal) * 100 : 0;
+
+    let points = 0;
+    let bgClass = 'red';
+    if (attendancePercent >= 80) { points = 10; bgClass = 'green'; }
+    else if (attendancePercent >= 75) { points = 8; bgClass = 'yellow'; }
+    else if (attendancePercent >= 70) { points = 6; bgClass = 'yellow'; }
+    else if (attendancePercent >= 65) { points = 4; bgClass = 'red'; }
+    else if (attendancePercent >= 60) { points = 2; bgClass = 'red'; }
+
+    const roast = roastComments[points] ? roastComments[points][Math.floor(Math.random() * roastComments[points].length)] : "";
+
+    let bufferMessage = "";
+    if (points > 0) {
+      let thresholdPercent = {10: 80, 8: 75, 6: 70, 4: 65, 2: 60}[points];
+      const thresholdAttended = Math.ceil((thresholdPercent / 100) * effectiveTotal);
+      const thresholdAbsences = effectiveTotal - thresholdAttended;
+      let x = thresholdAbsences - absents;
+      if (x > 1) bufferMessage = `You’ve got ${x} more bunks in the bank — grade stays at ${points}/10.`;
+      else if (x === 1) bufferMessage = `You’ve got room for 1 more bunk — grade stays at ${points}/10.`;
+      else bufferMessage = `No more bunks left — one more and you’ll drop below ${points}/10.`;
+    } else {
+      bufferMessage = `No more bunks left — one more and you’ll drop below ${points}/10.`;
+    }
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.className = `result ${bgClass}`;
+    resultDiv.innerHTML = `
+      <p><strong>Attended:</strong> ${attended} / ${effectiveTotal}</p>
+      <p><strong>Attendance %:</strong> ${attendancePercent.toFixed(1)}%</p>
+      <p><strong>Points:</strong> ${points} / 10</p>
+      <p class="roast">${roast}</p>
+      <p class="gradeInfo">${bufferMessage}</p>
+    `;
+  }
+</script>
+
+
+<script>
+  function showToast() {
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+  }
+
+  function share() {
+    navigator.clipboard.writeText(window.location.href);
+    showToast();
+  }
+</script>
+
+</body>
+</html>
